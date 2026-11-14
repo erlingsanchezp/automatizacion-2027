@@ -1,0 +1,6 @@
+schema_version,event_id,lead_id,name,email,phone,sede,consent,status,created_at,message
+1.0,evt-001,L001, Ana Torres , ANA@EXAMPLE.COM ,0990000001,villaflora,TRUE,nuevo,2027-01-15T14:00:00Z,Quiero información sobre limpieza
+1.0,evt-002,L002,Luis Pérez,luis@example.com,0990000002,gran_aki_solanda,TRUE,agendado,2027-01-15T15:00:00Z,Quiero agendar una cita
+1.0,evt-003,L003,Marta Luna,marta@example.com,0990000003,solanda_la_j,FALSE,nuevo,2027-01-15T16:00:00Z,Solo estoy revisando información
+1.0,evt-004,L004,José Ríos,correo-invalido,0990000004,san_bartolo,TRUE,nuevo,2027-01-15T17:00:00Z,Quiero información
+1.0,evt-005,L005,Rosa Vega,rosa@example.com,0990000005,desconocida,TRUE,nuevo,2027-01-15T18:00:00Z,Quiero agendar

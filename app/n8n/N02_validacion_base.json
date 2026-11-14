@@ -1,0 +1,118 @@
+{
+  "name": "LAB N02 Validacion base",
+  "nodes": [
+    {
+      "id": "manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "datos",
+      "name": "Datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Code JavaScript Run Once for All Items\nconst registros = [\n  {\n    \"schema_version\": \"1.0\",\n    \"event_id\": \"evt-001\",\n    \"lead_id\": \"L001\",\n    \"name\": \" Ana Torres \",\n    \"email\": \" ANA@EXAMPLE.COM \",\n    \"phone\": \"0990000001\",\n    \"sede\": \"villaflora\",\n    \"consent\": true,\n    \"status\": \"nuevo\",\n    \"created_at\": \"2027-01-15T14:00:00Z\",\n    \"message\": \"Quiero información sobre limpieza\"\n  },\n  {\n    \"schema_version\": \"1.0\",\n    \"event_id\": \"evt-002\",\n    \"lead_id\": \"L002\",\n    \"name\": \"Luis Pérez\",\n    \"email\": \"luis@example.com\",\n    \"phone\": \"0990000002\",\n    \"sede\": \"gran_aki_solanda\",\n    \"consent\": true,\n    \"status\": \"agendado\",\n    \"created_at\": \"2027-01-15T15:00:00Z\",\n    \"message\": \"Quiero agendar una cita\"\n  },\n  {\n    \"schema_version\": \"1.0\",\n    \"event_id\": \"evt-003\",\n    \"lead_id\": \"L003\",\n    \"name\": \"Marta Luna\",\n    \"email\": \"marta@example.com\",\n    \"phone\": \"0990000003\",\n    \"sede\": \"solanda_la_j\",\n    \"consent\": false,\n    \"status\": \"nuevo\",\n    \"created_at\": \"2027-01-15T16:00:00Z\",\n    \"message\": \"Solo estoy revisando información\"\n  },\n  {\n    \"schema_version\": \"1.0\",\n    \"event_id\": \"evt-004\",\n    \"lead_id\": \"L004\",\n    \"name\": \"José Ríos\",\n    \"email\": \"correo-invalido\",\n    \"phone\": \"0990000004\",\n    \"sede\": \"san_bartolo\",\n    \"consent\": true,\n    \"status\": \"nuevo\",\n    \"created_at\": \"2027-01-15T17:00:00Z\",\n    \"message\": \"Quiero información\"\n  },\n  {\n    \"schema_version\": \"1.0\",\n    \"event_id\": \"evt-005\",\n    \"lead_id\": \"L005\",\n    \"name\": \"Rosa Vega\",\n    \"email\": \"rosa@example.com\",\n    \"phone\": \"0990000005\",\n    \"sede\": \"desconocida\",\n    \"consent\": true,\n    \"status\": \"nuevo\",\n    \"created_at\": \"2027-01-15T18:00:00Z\",\n    \"message\": \"Quiero agendar\"\n  }\n];\nreturn registros.map(registro => ({ json: registro }));\n"
+      }
+    },
+    {
+      "id": "normalizar",
+      "name": "Normalizar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// n8n Code JavaScript Run Once for All Items.\nfunction normalize(data) {\n  if (data === null || typeof data !== \"object\" || Array.isArray(data)) {\n    return { valid: false, eligible: false, errors: [\"object_required\"], data: {} };\n  }\n  const out = { ...data };\n  out.name = String(data.name ?? \"\").trim().replace(/\\s+/g, \" \");\n  out.email = String(data.email ?? \"\").trim().toLowerCase();\n  out.sede = String(data.sede ?? \"\").trim().toLowerCase();\n  out.consent = data.consent === true;\n  const errors = [];\n  for (const field of [\"event_id\", \"lead_id\", \"name\"]) {\n    if (typeof data[field] !== \"string\" || !data[field].trim()) {\n      errors.push(field + \"_required\");\n    }\n  }\n  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(out.email)) errors.push(\"email_invalid\");\n  const sedes = [\"villaflora\", \"gran_aki_solanda\", \"solanda_la_j\", \"san_bartolo\"];\n  if (!sedes.includes(out.sede)) errors.push(\"sede_invalid\");\n  if (typeof data.consent !== \"boolean\") errors.push(\"consent_boolean_required\");\n  return { valid: errors.length === 0, eligible: errors.length === 0 && out.consent,\n    errors, data: out };\n}\n\nreturn $input.all().map((item, index) => ({json: normalize(item.json.body ?? item.json), pairedItem: {item: index}}));\n"
+      }
+    },
+    {
+      "id": "filtro",
+      "name": "Elegible",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eligible-true",
+              "leftValue": "={{ $json.eligible }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datos": {
+      "main": [
+        [
+          {
+            "node": "Normalizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar": {
+      "main": [
+        [
+          {
+            "node": "Elegible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Guayaquil"
+  },
+  "pinData": {},
+  "tags": []
+}

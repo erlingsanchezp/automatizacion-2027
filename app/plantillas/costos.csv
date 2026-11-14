@@ -1,0 +1,7 @@
+concepto,unidad,cantidad_medida,costo_unitario_supuesto,total,observaciones
+Plataforma,suscripcion,1,0,0,Completar con tarifa verificada
+Proveedor API,llamada,0,0,0,Medir volumen
+Modelo IA,unidad_del_proveedor,0,0,0,Separar entrada y salida si corresponde
+Infraestructura,mes,1,0,0,Incluir si existe
+Mantenimiento,hora,0,0,0,Tiempo operativo
+Implementacion,hora,0,0,0,Costo inicial

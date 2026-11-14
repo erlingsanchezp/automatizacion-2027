@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt-004",
+  "lead_id": "L004",
+  "name": "José Ríos",
+  "email": "correo-invalido",
+  "phone": "0990000004",
+  "sede": "san_bartolo",
+  "consent": true,
+  "status": "nuevo",
+  "created_at": "2027-01-15T17:00:00Z",
+  "message": "Quiero información"
+}

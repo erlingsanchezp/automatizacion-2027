@@ -1,0 +1,82 @@
+{
+  "name": "LAB N03 Webhook base",
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lab-n03-practica",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "normalizar",
+      "name": "Normalizar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// n8n Code JavaScript Run Once for All Items.\nfunction normalize(data) {\n  if (data === null || typeof data !== \"object\" || Array.isArray(data)) {\n    return { valid: false, eligible: false, errors: [\"object_required\"], data: {} };\n  }\n  const out = { ...data };\n  out.name = String(data.name ?? \"\").trim().replace(/\\s+/g, \" \");\n  out.email = String(data.email ?? \"\").trim().toLowerCase();\n  out.sede = String(data.sede ?? \"\").trim().toLowerCase();\n  out.consent = data.consent === true;\n  const errors = [];\n  for (const field of [\"event_id\", \"lead_id\", \"name\"]) {\n    if (typeof data[field] !== \"string\" || !data[field].trim()) {\n      errors.push(field + \"_required\");\n    }\n  }\n  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(out.email)) errors.push(\"email_invalid\");\n  const sedes = [\"villaflora\", \"gran_aki_solanda\", \"solanda_la_j\", \"san_bartolo\"];\n  if (!sedes.includes(out.sede)) errors.push(\"sede_invalid\");\n  if (typeof data.consent !== \"boolean\") errors.push(\"consent_boolean_required\");\n  return { valid: errors.length === 0, eligible: errors.length === 0 && out.consent,\n    errors, data: out };\n}\n\nreturn $input.all().map((item, index) => ({json: normalize(item.json.body ?? item.json), pairedItem: {item: index}}));\n"
+      }
+    },
+    {
+      "id": "respuesta",
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.valid ? 200 : 422 }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar": {
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Guayaquil"
+  },
+  "pinData": {},
+  "tags": []
+}

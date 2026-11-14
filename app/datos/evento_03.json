@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt-003",
+  "lead_id": "L003",
+  "name": "Marta Luna",
+  "email": "marta@example.com",
+  "phone": "0990000003",
+  "sede": "solanda_la_j",
+  "consent": false,
+  "status": "nuevo",
+  "created_at": "2027-01-15T16:00:00Z",
+  "message": "Solo estoy revisando información"
+}

@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "category": {"type": "string", "enum": ["agendar", "informacion", "revision"]},
+    "reason": {"type": "string", "maxLength": 240}
+  },
+  "required": ["category", "reason"],
+  "additionalProperties": false
+}
